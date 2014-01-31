@@ -49,11 +49,11 @@ function getVal(item, sigs) {
 }
 
 function fancyRound(rawPrice) {
-  if (rawPrice > 100) {
+  if (rawPrice > 200) {
     var roundPrice = Math.round(rawPrice/100)*100 + ".00";
   } else if (rawPrice > 20) {
     var roundPrice = Math.round(rawPrice/10)*10 + ".00";
-  } else if (rawPrice > 1) {
+  } else if (rawPrice > 2) {
     var roundPrice = Math.round(rawPrice) + ".00";
   } else {
     var roundPrice = Math.round(rawPrice*100)/100;
