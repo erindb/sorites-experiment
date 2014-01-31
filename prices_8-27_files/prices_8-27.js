@@ -16,9 +16,7 @@ var items = ["headphones", "sweater", "laptop", "coffee maker", "watch"];
 var nEps = epsilonDeviations.length;
 var nVals = valueDeviations.length;
 var nItems = items.length;
-var nQsPerCond = 4;
-var nConds = nEps + nVals;
-var nQs = nQsPerCond * nConds;
+var nQs = (nEps + nVals)*nItems;
 
 var sds = {
   "coffee maker": 63.0799749633,
@@ -50,7 +48,7 @@ function getVal(item, sigs) {
 
 function fancyRound(rawPrice) {
   if (rawPrice > 200) {
-    var roundPrice = Math.round(rawPrice/100)*100 + ".00";
+    var roundPrice = Math.round(rawPrice/50)*50 + ".00";
   } else if (rawPrice > 20) {
     var roundPrice = Math.round(rawPrice/10)*10 + ".00";
   } else if (rawPrice > 2) {
@@ -61,30 +59,48 @@ function fancyRound(rawPrice) {
   return "$" + roundPrice;
 }
 
-var unshuffledQTypes = [];
-var unshuffledEps = [];
-for (var i=0; i<nQsPerCond; i++) {
-  unshuffledEps = unshuffledEps.concat(epsilonDeviations);
-  for (var j=0; j<nEps; j++) {
-    unshuffledQTypes.push("eps");
-  }
-}
-var epsilons = shuffle(unshuffledEps);
-var unshuffledVals = [];
-for (var i=0; i<nQsPerCond; i++) {
-  unshuffledVals = unshuffledVals.concat(valueDeviations);
-  for (var j=0; j<nVals; j++) {
-    unshuffledQTypes.push("val");
-  }
-}
-var values = shuffle(unshuffledVals);
-var qTypes = shuffle(unshuffledQTypes);
 
-var unshuffledItemBank = [];
-while (unshuffledItemBank.length < nQs) {
-  unshuffledItemBank = unshuffledItemBank.concat(items);
+var unshuffledItems = [];
+var unshuffledQTypes = [];
+var unshuffledVals = [];
+var unshuffledEps = [];
+for (var i=0; i<nItems; i++) {
+  //console.log(items[i])
+  for (var j=0; j<nVals; j++) {
+    unshuffledItems.push(items[i]);
+    unshuffledQTypes.push("val");
+    unshuffledVals.push(valueDeviations[j]);
+    //console.log(valueDeviations[j]);
+    unshuffledEps.push("NOPE");
+  }
+  for (var j=0; j<nEps; j++) {
+    unshuffledItems.push(items[i]);
+    unshuffledQTypes.push("eps");
+    unshuffledEps.push(epsilonDeviations[j]);
+    //console.log(epsilonDeviations[j]);
+    unshuffledVals.push("NOPE");
+  }
 }
-var itemBank = shuffle(unshuffledItemBank);
+
+var unshuffledIndices = [];
+for (var i=0; i<nQs; i++) {
+  unshuffledIndices.push(i);
+}
+var indices = shuffle(unshuffledIndices);
+
+var itemBank = [];
+var qTypes = [];
+var values = [];
+var epsilons = [];
+for (var i=0; i<indices.length; i++) {
+  index = indices[i];
+  itemBank.push(unshuffledItems[index]);
+  var qType = unshuffledQTypes[index];
+  qTypes.push(qType);
+    values.push(unshuffledVals[index]);
+    epsilons.push(unshuffledEps[index]);
+}
+
 
 function caps(a) {return a.substring(0,1).toUpperCase() + a.substring(1,a.length);}
 function uniform(a, b) { return ( (Math.random()*(b-a))+a ); }
@@ -140,10 +156,10 @@ var experiment = {
     var startTime = Date.now();
     $("#trialerror").hide();
     showSlide("trial");
-    var item = itemBank.shift();
-    var qType = qTypes.shift();
+    var item = itemBank[qNumber];
+    var qType = qTypes[qNumber];
     if (qType == "val") {
-      var sigs = values.shift();
+      var sigs = values[qNumber];
       var dollarAmt = getVal(item, sigs);
       if (sg(item)) {
         var statement = "<b>" + caps(article(item)) + " " + item + " that costs " +
@@ -153,7 +169,7 @@ var experiment = {
                         " are expensive.</b>";
       }
     } else if (qType == "eps") {
-      var sigs = epsilons.shift();
+      var sigs = epsilons[qNumber];
       var dollarAmt = getEps(item, sigs);
       if (sg(item)) {
         var statement = "<b>" + caps(article(item)) + " " + item + " that costs " +
