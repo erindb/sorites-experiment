@@ -20,18 +20,31 @@ var nQsPerCond = 4;
 var nConds = nEps + nVals;
 var nQs = nQsPerCond * nConds;
 
+var sds = {
+  "coffee maker": 63.0799749633,
+  "headphones": 79.0068590031,
+  "laptop": 562.8069320736,
+  "sweater": 48.9088453535,
+  "watch": 657.605377432
+}
+
+var means = {
+  "coffee maker": 117.7356754496,
+  "headphones": 119.9895196507,
+  "laptop": 1221.8962172648,
+  "sweater": 83.0482352941,
+  "watch": 722.592738753
+}
+
 function getEps(item, sigs) {
-  if(humanPriors[item] == null) {console.log("ERROR 2");}
-  var sig = sd(humanPriors[item]);
-  var raw = sigs*sig;
+  if(means[item] == null | sds[item] == null) {alert("ERROR 2");}
+  var raw = sigs*sds[item];
   return fancyRound(raw);
 }
 
 function getVal(item, sigs) {
-  if(humanPriors[item] == null) {console.log("ERROR 4");}
-  var sig = sd(humanPriors[item]);
-  var mu = mean(humanPriors[item]);
-  raw = (sigs*sig) + mu;
+  if(means[item] == null | sds[item] == null) {alert("ERROR 4");}
+  raw = (sigs*sds[item]) + means[item];
   return fancyRound(raw);
 }
 
