@@ -18,6 +18,8 @@ var nVals = valueDeviations.length;
 var nItems = items.length;
 var nQs = (nEps + nVals)*nItems;
 
+var inductivePhrasing = shuffle(["conditional", "relative"])[0];
+
 var sds = {
   "coffee maker": 63.0799749633,
   "headphones": 79.0068590031,
@@ -165,19 +167,32 @@ var experiment = {
         var statement = "<b>" + caps(article(item)) + " " + item + " that costs " +
                         dollarAmt + " is expensive.</b>";
       } else {
-        var statement = "<b>" + caps(item) + " that cost " + dollarAmt +
-                        " are expensive.</b>";
+        var statement = "<b>A pair of " + item + " that costs " + dollarAmt +
+                        " is expensive.</b>";
       }
     } else if (qType == "eps") {
       var sigs = epsilons[qNumber];
       var dollarAmt = getEps(item, sigs);
-      if (sg(item)) {
-        var statement = "<b>" + caps(article(item)) + " " + item + " that costs " +
-                        dollarAmt + " less than an expensive " + item +
-                        " is also expensive.</b>";
+      if (inductivePhrasing == "relative") {
+        if (sg(item)) {
+          var statement = "<b>" + caps(article(item)) + " " + item + " that costs " +
+                          dollarAmt + " less than an expensive " + item +
+                          " is also expensive.</b>";
+        } else {
+          var statement = "<b>A pair of " + item + " that costs " + dollarAmt + " less " +
+                          "than an expensive pair of " + item + " is also expensive.</b>";
+        }
+      } else if (inductivePhrasing == "conditional") {
+        if (sg(item)) {
+          var statement = "<b>If " + article(item) + " " + item + " is expensive, " +
+                          " then another " + item + " that costs " +
+                          dollarAmt + " less is also expensive.</b>";
+        } else {
+          var statement = "<b>If a pair of " + item + " is expensive, then another pair of " +
+                          item + " that costs " + dollarAmt + " less is also expensive.</b>";
+        }
       } else {
-        var statement = "<b>" + caps(item) + " that cost " + dollarAmt + " less " +
-                        "than expensive " + item + " are also expensive.</b>";
+        alert("error 94: " + inductivePhrasing);
       }
     } else {
       console.log("error 6");
@@ -232,6 +247,8 @@ var experiment = {
         experiment.data["language"] = lang;
         experiment.data["comments"] = comments;
         experiment.data["age"] = age;
+        experiment.data["version"] = "feb6";
+        experiment.data["phrasing"] = inductivePhrasing;
         showSlide("finished");
         setTimeout(function() { turk.submit(experiment.data) }, 1000);
       }
